@@ -1,0 +1,25 @@
+[package]
+name = "physics-playground"
+version = "0.1.0"
+authors = ["Vengarioth | Andreas Fischer <opensource@deviru.de>"]
+edition = "2018"
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+js-sys = "0.3.46"
+wasm-bindgen = "0.2.69"
+
+[dependencies.web-sys]
+version = "0.3.4"
+features = [
+  'console',
+  'CanvasRenderingContext2d',
+  'Document',
+  'Element',
+  'HtmlElement',
+  'HtmlCanvasElement',
+  'Node',
+  'Window',
+]
