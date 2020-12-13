@@ -64,9 +64,14 @@ impl RigidBody {
     }
 
     pub fn constrain_velocity(&mut self) {
+        let mut velocity = self.velocity;
         for constraint in &self.velocity_constraints {
-            self.velocity = constraint.evaluate(self.position, self.velocity);
+            let next_position = self.position + (velocity * super::TIMESTAMP);
+            let closest_point = constraint.evaluate(next_position, velocity);
+            let correction = (closest_point - next_position) * super::INV_TIMESTAMP;
+            velocity += correction;
         }
+        self.velocity = velocity;
     }
 
     pub fn draw(&self, context: &mut Context) {

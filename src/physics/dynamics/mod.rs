@@ -8,7 +8,7 @@ pub use force_emitter::*;
 use super::RigidBody;
 
 pub trait VelocityConstraint : Debug {
-    fn evaluate(&self, position: Vec2, velocity: Vec2) -> Vec2;
+    fn evaluate(&self, next_position: Vec2, velocity: Vec2) -> Vec2;
     fn draw(&self, context: &mut Context, rigid_body: &RigidBody);
 }
 
@@ -33,14 +33,9 @@ impl DistanceVelocityConstraint {
 }
 
 impl VelocityConstraint for DistanceVelocityConstraint {
-    fn evaluate(&self, position: Vec2, velocity: Vec2) -> Vec2 {
-        let next_position = position + (velocity * super::TIMESTAMP);
+    fn evaluate(&self, next_position: Vec2, _velocity: Vec2) -> Vec2 {
         let direction = (next_position - self.center).normalize();
-        let closest_point = self.center + (direction * self.radius);
-
-        let correction = (closest_point - (position + (velocity * super::TIMESTAMP))) * super::INV_TIMESTAMP;
-
-        velocity + correction
+        self.center + (direction * self.radius)
     }
 
     fn draw(&self, context: &mut Context, rigid_body: &RigidBody) {
@@ -51,7 +46,7 @@ impl VelocityConstraint for DistanceVelocityConstraint {
         let direction = (next_position - self.center).normalize();
         let closest_point = self.center + (direction * self.radius);
 
-        let correction = (closest_point - (position + (velocity * super::TIMESTAMP))) * super::INV_TIMESTAMP;
+        let correction = (closest_point - next_position) * super::INV_TIMESTAMP;
 
         context.set_color(context.red());
         context.draw_point(self.center);
@@ -79,16 +74,10 @@ impl LineConstraint {
 }
 
 impl VelocityConstraint for LineConstraint {
-    fn evaluate(&self, position: Vec2, velocity: Vec2) -> Vec2 {
-        let next_position = position + (velocity * super::TIMESTAMP);
-
+    fn evaluate(&self, next_position: Vec2, _velocity: Vec2) -> Vec2 {
         let direction = (self.b - self.a).normalize();
         let v = (next_position - self.a).dot(direction).max(0.0).min((self.b - self.a).length());
-        let closest_point = self.a + direction * v;
-
-        let correction = (closest_point - (position + (velocity * super::TIMESTAMP))) * super::INV_TIMESTAMP;
-
-        velocity + correction
+        self.a + direction * v
     }
 
     fn draw(&self, context: &mut Context, rigid_body: &RigidBody) {
