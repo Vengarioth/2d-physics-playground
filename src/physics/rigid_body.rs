@@ -3,6 +3,8 @@ use std::fmt::Debug;
 use crate::{math::*, scene::Context};
 use super::{Collider, dynamics::{ForceEmitter, VelocityConstraint}};
 
+pub const SOLVER_ITERATIONS: usize = 4;
+
 #[derive(Debug, Copy, Clone)]
 pub enum Mass {
     Infinite,
@@ -65,11 +67,13 @@ impl RigidBody {
 
     pub fn constrain_velocity(&mut self) {
         let mut velocity = self.velocity;
-        for constraint in &self.velocity_constraints {
-            let next_position = self.position + (velocity * super::TIMESTAMP);
-            let closest_point = constraint.evaluate(next_position, velocity);
-            let correction = (closest_point - next_position) * super::INV_TIMESTAMP;
-            velocity += correction;
+        for _ in 0..SOLVER_ITERATIONS {
+            for constraint in &self.velocity_constraints {
+                let next_position = self.position + (velocity * super::TIMESTAMP);
+                let closest_point = constraint.evaluate(next_position, velocity);
+                let correction = (closest_point - next_position) * super::INV_TIMESTAMP;
+                velocity += correction;
+            }
         }
         self.velocity = velocity;
     }
