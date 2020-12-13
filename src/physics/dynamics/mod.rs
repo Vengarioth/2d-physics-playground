@@ -42,11 +42,11 @@ impl VelocityConstraint for DistanceVelocityConstraint {
         let position = rigid_body.position;
         let velocity = rigid_body.velocity;
 
-        let next_position = position + (velocity * super::TIMESTAMP);
+        let next_position = position + (velocity * super::TIMESTEP);
         let direction = (next_position - self.center).normalize();
         let closest_point = self.center + (direction * self.radius);
 
-        let correction = (closest_point - next_position) * super::INV_TIMESTAMP;
+        let correction = (closest_point - next_position) * super::INV_TIMESTEP;
 
         context.set_color(context.red());
         context.draw_point(self.center);
@@ -83,7 +83,7 @@ impl VelocityConstraint for LineConstraint {
     fn draw(&self, context: &mut Context, rigid_body: &RigidBody) {
         let position = rigid_body.position;
         let velocity = rigid_body.velocity;
-        let next_position = position + (velocity * super::TIMESTAMP);
+        let next_position = position + (velocity * super::TIMESTEP);
 
         let direction = (self.b - self.a).normalize();
         let v = (next_position - self.a).dot(direction).max(0.0).min((self.b - self.a).length());

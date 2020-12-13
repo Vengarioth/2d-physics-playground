@@ -1,8 +1,8 @@
 use crate::scene::*;
 use super::{Mass, RigidBody};
 
-pub const INV_TIMESTAMP: f32 = 60.0;
-pub const TIMESTAMP: f32 = 1.0 / INV_TIMESTAMP;
+pub const INV_TIMESTEP: f32 = 60.0;
+pub const TIMESTEP: f32 = 1.0 / INV_TIMESTEP;
 
 #[derive(Debug)]
 pub struct World {
@@ -26,11 +26,11 @@ impl World {
                 rb.update_forces();
 
                 let acceleration = rb.force * inverse_mass;
-                rb.velocity += acceleration * TIMESTAMP;
+                rb.velocity += acceleration * TIMESTEP;
 
                 rb.constrain_velocity();
 
-                rb.position += rb.velocity * TIMESTAMP;
+                rb.position += rb.velocity * TIMESTEP;
             }
         }
     }

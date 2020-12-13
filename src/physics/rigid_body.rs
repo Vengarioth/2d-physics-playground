@@ -69,9 +69,9 @@ impl RigidBody {
         let mut velocity = self.velocity;
         for _ in 0..SOLVER_ITERATIONS {
             for constraint in &self.velocity_constraints {
-                let next_position = self.position + (velocity * super::TIMESTAMP);
+                let next_position = self.position + (velocity * super::TIMESTEP);
                 let closest_point = constraint.evaluate(next_position, velocity);
-                let correction = (closest_point - next_position) * super::INV_TIMESTAMP;
+                let correction = (closest_point - next_position) * super::INV_TIMESTEP;
                 velocity += correction;
             }
         }
