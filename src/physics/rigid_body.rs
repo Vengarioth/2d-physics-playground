@@ -79,6 +79,7 @@ impl RigidBody {
     }
 
     pub fn draw(&self, context: &mut Context) {
+        context.set_color(context.blue());
         self.collider.draw(self.position, context);
 
         context.set_color(context.yellow());

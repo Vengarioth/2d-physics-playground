@@ -1,4 +1,5 @@
-use std::ops::{Add, Sub, Mul, Div, AddAssign, SubAssign, MulAssign, DivAssign};
+use std::ops::{Add, Sub, Mul, Div, AddAssign, SubAssign, MulAssign, DivAssign, Neg};
+use std::cmp::PartialEq;
 
 #[derive(Debug, Copy, Clone)]
 pub struct Vec2 {
@@ -41,8 +42,29 @@ impl Vec2 {
         self * self.length_recip()
     }
 
-    pub fn perpendicular(self) -> Vec2 {
+    pub fn abs(self) -> Vec2 {
+        Self {
+            x: self.x.abs(),
+            y: self.y.abs(),
+        }
+    }
+
+    /// Returns a vector perpendicular to this one, in the direction of `hint`
+    pub fn perpendicular(self, hint: Vec2) -> Vec2 {
+        let p = Self::new(self.y, -self.x);
+        if p.normalize().dot(hint.normalize()) > 0.0 {
+            p
+        } else {
+            Self::new(-self.y, self.x)
+        }
+    }
+
+    pub fn perpendicular_cw(self) -> Vec2 {
         Self::new(self.y, -self.x)
+    }
+
+    pub fn perpendicular_ccw(self) -> Vec2 {
+        Self::new(-self.y, self.x)
     }
 }
 
@@ -129,6 +151,13 @@ impl Add<f32> for Vec2 {
     }
 }
 
+impl AddAssign<f32> for Vec2 {
+    fn add_assign(&mut self, rhs: f32) {
+        self.x += rhs;
+        self.y += rhs;
+    }
+}
+
 impl Sub<f32> for Vec2 {
     type Output = Self;
 
@@ -137,6 +166,13 @@ impl Sub<f32> for Vec2 {
             x: self.x - rhs,
             y: self.y - rhs,
         }
+    }
+}
+
+impl SubAssign<f32> for Vec2 {
+    fn sub_assign(&mut self, rhs: f32) {
+        self.x -= rhs;
+        self.y -= rhs;
     }
 }
 
@@ -151,6 +187,13 @@ impl Mul<f32> for Vec2 {
     }
 }
 
+impl MulAssign<f32> for Vec2 {
+    fn mul_assign(&mut self, rhs: f32) {
+        self.x *= rhs;
+        self.y *= rhs;
+    }
+}
+
 
 impl Div<f32> for Vec2 {
     type Output = Self;
@@ -160,5 +203,49 @@ impl Div<f32> for Vec2 {
             x: self.x / rhs,
             y: self.y / rhs,
         }
+    }
+}
+
+impl DivAssign<f32> for Vec2 {
+    fn div_assign(&mut self, rhs: f32) {
+        self.x /= rhs;
+        self.y /= rhs;
+    }
+}
+
+impl Neg for Vec2 {
+    type Output = Vec2;
+
+    fn neg(self) -> Self::Output {
+        Vec2 {
+            x: -self.x,
+            y: -self.y,
+        }
+    }
+}
+
+impl PartialEq for Vec2 {
+    fn eq(&self, other: &Self) -> bool {
+        (*self - *other).abs().length() < std::f32::EPSILON
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_perpendicular() {
+        let a = Vec2::new(0.0, 1.0);
+        let hint = Vec2::new(1.0, 0.0);
+        let p = a.perpendicular(hint);
+
+        assert_eq!(p, Vec2::new(1.0, 0.0));
+
+        let a = Vec2::new(0.0, 1.0);
+        let hint = Vec2::new(-1.0, 0.0);
+        let p = a.perpendicular(hint);
+
+        assert_eq!(p, Vec2::new(-1.0, 0.0));
     }
 }

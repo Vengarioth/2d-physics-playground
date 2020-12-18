@@ -110,4 +110,15 @@ impl Context {
         self.inner.stroke();
         self.inner.close_path();
     }
+
+    pub fn draw_normal(&mut self, position: Vec2, normal: Vec2) {
+        let from = self.camera.transform(position);
+        let to = self.camera.transform(position + normal);
+
+        self.inner.begin_path();
+        self.inner.move_to(from.x as f64, from.y as f64);
+        self.inner.line_to(to.x as f64, to.y as f64);
+        self.inner.stroke();
+        self.inner.close_path();
+    }
 }
